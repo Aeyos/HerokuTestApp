@@ -1,0 +1,182 @@
+html, body {
+	width: 100%;
+}
+
+body * {
+	font-family: Tahoma,Verdana,Segoe,sans-serif;
+}
+
+textarea, input, button { outline: none; }
+
+ul {
+	list-style: none;
+	margin: -28px 50px 15px 50px;
+	padding: 19px 0px 0px 0px;
+	background-color: black;
+	width: 510px;
+	max-height: 300px;
+	overflow: scroll;
+}
+
+ul li {
+	border-bottom: 1px solid gray;
+	padding: 16px 40px;
+	color: white;
+	cursor: pointer;
+}
+
+.container {
+	width: 80%;
+	min-width: 671px;
+	margin: auto;
+}
+
+#links a{
+	/*display: inline-block;*/
+	color: #ddd;
+	display: block;
+	font-style: none;
+	overflow: hidden;
+	padding: 10px;
+	margin-bottom: 1px;
+	text-decoration: none;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.searchCombo span{
+	background-color: #222;
+	color: white;
+	display: inline-block;
+	height: 30px;
+	line-height: 30px;
+	padding: 5px 35px;
+}
+.searchCombo input {
+    border: 1px solid #222;
+    height: 28px;
+    padding: 5px 15px;
+    left: -5px;
+    width: 410px;
+    font-size: 1.4em;
+    line-height: 0px;
+    position: relative;
+    top: 2px;
+    margin-right: -10px;
+}
+.searchCombo button {
+	background-color: #222;
+	color: white;
+	display: inline-block;
+	height: 40px;
+	line-height: 35px;
+	padding: 0px 15px;
+	border: none;
+	position: relative;
+	top: -3px;
+	cursor: pointer;
+}
+.songsWrapper {
+	border-top: 3px solid #222;
+	border-bottom: 3px solid #222;
+	overflow: scroll;
+	overflow-x: hidden;
+	transition: height .7s ease-in-out;
+	height: 600px;
+	margin-bottom: 10px;
+}
+.songsWrapper h1 {
+	display: inline-block;
+	margin: 0px;
+	padding: 8px 16px;
+	text-transform: capitalize;
+	border: none;
+	border-bottom: 3px solid #222;
+	font-size: 2em;
+	width: 100%;
+	background-color: #91C910;
+	color: white;
+}
+.songsWrapper a {
+	background-color: #222;
+	color: white;
+}
+.songsWrapper a span {
+	margin-right: 30px;
+}
+
+
+.sectionControlls {
+	background-color: #222;
+	/* border-radius: 50%; */
+	border: none;
+	color: white;
+	font-size: 22px;
+	margin: 0px 11px 0px 0px;
+	height: 40px;
+	width: 45px;
+	transition: transform .4s ease-in-out;
+	border-bottom-left-radius: 0%;
+	border-bottom-right-radius: 0%;
+	float: left;
+}
+
+.minimized {
+	height: 98px;
+	overflow: hidden;
+}
+.rot180 {
+	transform: rotateZ(180deg);
+}
+.deleting {
+	height: 0px;
+}
+
+
+.spotify span {
+	display: inline-block;
+	width: 10px;
+	height: 10px;
+	overflow: visible;
+	position: relative;
+	top: -14px;
+	left: -61px;
+}
+.spotify img {
+	height: 37px;
+	position: absolute;
+}
+.spotify {
+	position: relative;
+	z-index: 10;
+	-webkit-transition: background-color .15s ease,border-color .15s ease,color .15s ease;
+	-webkit-user-select: none;
+	background-color: #91c910;
+	background-image: none;
+	border-radius: 500px;
+	border-width: 0;
+	border: 1px solid transparent;
+	color: #FFF;
+	cursor: pointer;
+	display: inline-block;
+	font-size: 14px;
+	font-weight: 600;
+	letter-spacing: 1.2px;
+	line-height: 1.5;
+	margin: 10px 10px 10px 0px;
+	padding: 7px 35px 7px 55px;
+	text-align: center;
+	text-transform: uppercase;
+	touch-action: manipulation;
+	transition: background-color .15s ease,border-color .15s ease,color .15s ease;
+	user-select: none;
+	vertical-align: middle;
+	white-space: normal;
+}
+
+.clearfix {
+  clear: both;
+  display: block;
+  overflow: auto;
+  zoom: 1;
+}

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title></title>
+	<link rel="stylesheet" type="text/css" href="main.css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+	<script type="text/javascript" src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
+	<script type="text/javascript" src="userDataSnippet.js"></script>
+	<script type="text/javascript">
+		function getData(form) {
+			var songs = $('#searchInput').val().split(';');
+			for(var i in songs) {
+				if(!songs[i]) continue;
+				var song = songs[i].replace(/[\s\.\&]/g,'_').toLowerCase();
+				// var link = 'http://mp3clan.de/mp3/' + song + '.html';
+				var page = 0;
+				// console.log('GET FROM', link);
+				$.post('getLinks.php',
+					{
+						query : song,
+						page : page
+					},
+					function (result) {
+						window.result = result;
+						result = result.replace(/<\/h1>/, '</h1><button class="sectionControlls" onclick="$(\'.songsWrapper\').scrollTop(0);$(this).parent().toggleClass(\'minimized\');$(this).toggleClass(\'rot180\');"><span style="position: relative; top: -3px;">&#x21EA;</span></button>'+
+															   '<button class="sectionControlls" onclick="$(this).parent().toggleClass(\'deleting\').fadeOut(1200, function (param){$(this).remove()})">&#x2716;</button>'+
+															   '<button class="sectionControlls" onclick="reloadData(this, \''+song+'\')">&#x27F3;</button>'+
+															   '<span class="clearfix"></span>')
+										.replace(/(<a href=".*?">)/g, '$1<span class="fa fa-download"></span>')
+										.replace(/amp;/g, '&');
+						var element = '<div class="songsWrapper">' + result + '</div>';
+						var index = crossref(result, $(element));
+						element = $(element);
+						element.find('a:eq('+index+')').css({
+							backgroundColor: '#c41d1d'
+						});
+						$('#links').append(element);
+						console.log('done');
+						console.log(result);
+					}
+				);
+			}
+			return false;
+		}
+		function reloadData (element, song) {
+			song = element.parentNode.getElementsByTagName('h1')[0].innerHTML;
+			$.post('getLinks.php',
+				{
+					query : song,
+					page : 0
+				},
+				function (result) {
+					result = result.replace(/<\/h1>/, '</h1><button class="sectionControlls" onclick="$(\'.songsWrapper\').scrollTop(0);$(this).parent().toggleClass(\'minimized\');$(this).toggleClass(\'rot180\');"><span style="position: relative; top: -3px;">&#x21EA;</span></button>'+
+														   '<button class="sectionControlls" onclick="$(this).parent().toggleClass(\'deleting\').fadeOut(1200, function (param){$(this).remove()})">&#x2716;</button>'+
+														   '<button class="sectionControlls" onclick="reloadData(this, \''+song+'\')">&#x27F3;</button>'+
+														   '<span class="clearfix"></span>')
+									.replace(/(<a href=".*?">)/g, '$1<span class="fa fa-download"></span>')
+									.replace(/amp;/g, '&');
+					element = element.parentNode;
+					$(element).html(result);
+
+					var index = crossref(result, $(element).html());
+					$(element).find('a:eq('+index+')').css({
+						backgroundColor: '#c41d1d'
+					});
+					console.log('done');
+					console.log(result);
+				}
+			);
+		}
+
+		function crossref(html, jElement) {
+			var words = html.match(/<h1.*?">(.*?)<\/h1>/)[1].match(/\w+/g),
+				links = html.match(/<a href=".*?<\/a>/g);
+			var highest = {
+				index : -1,
+				value : -Infinity
+			};
+			for(var i in links) {
+				var ref = links[i].match(/<a.*?">(.+?)<\/a>/)[1].match(/\w+/g);
+				var count = 0;
+				for(var j in words) {
+					for(var k in ref) {
+						count += words[j].toLowerCase() == ref[k].toLowerCase() ? 1 : -1;
+					}
+				}
+				if(count > highest.value) {
+					highest = {
+						index : i,
+						value : count
+					}
+				}
+				console.log('Index ',i,'is',count);
+			}
+			console.log('Best : ', highest);
+			return highest.index;
+		}
+		// FIRST SEARCH http://mp3clan.de/mp3_source.php?ser=eminem&page=0
+		// SECOND SEARCH http://mp3clan.de/mp3_s2.php?ser=eminem&page=0
+	</script>
+</head>
+<body>
+	<section class="container">
+		<form onsubmit="return getData(this)" method="get" accept-charset="utf-8">
+			<div class="searchCombo">
+				<span>Search</span>
+				<input type="text" id="searchInput" class="search">
+				<button type="submit"><span class="fa fa-search"></span></button>
+			</div>
+		</form>
+
+		<button class="spotify" onclick="logMeIn()"><span><img src="spotify.svg"></span>LOG INTO SPOTIFY</button>
+		<div>
+			<ul class="spotifyPlaylists" style="display: none">
+			</ul>
+		</div>
+		<div id="links">
+			<div class="songsWrapper" style="height: 120px">
+				<h1>Tutorial</h1>
+				<button class="sectionControlls" onclick="$('.songsWrapper').scrollTop(0);$(this).parent().toggleClass('minimized');$(this).toggleClass('rot180');"><span style="position: relative; top: -3px;">&#x21EA;</span></button>
+				<button class="sectionControlls" onclick="$(this).parent().toggleClass('deleting').fadeOut(1200, function (param){$(this).remove()})">&#x2716;</button><br/>
+				<p>Type name of song or artist and click the search icon, you can search multiple at the same time by inserting a ; between the names</p>
+			</div>
+			<div class="songsWrapper"><h1 contenteditable="true">psy - gangnam style</h1><button class="sectionControlls" onclick="$('.songsWrapper').scrollTop(0);$(this).parent().toggleClass('minimized');$(this).toggleClass('rot180');"><span style="position: relative; top: -3px;">⇪</span></button><button class="sectionControlls" onclick="$(this).parent().toggleClass('deleting').fadeOut(1200, function (param){$(this).remove()})">✖</button><button class="sectionControlls" onclick="reloadData(this, 'psy_-_gangnam_style')">⟳</button><span class="clearfix"></span><br><a href="http://mp3clan.de/dl.php?type=get&amp;s=a8fab32e40bc84f58489050f7bd407d1&amp;tid=-56222501_217276460&amp;name=Titan_Brothers-mperia_S.s.c.____amp;___Feat._Dress_Code_______amp;______amp;____amp;__Dan_Balan_____Psy_Gangnam_Style_-___2013_(___)_____!!!_____.___!_____:)_:)"><span class="fa fa-download"></span>Titan Brothers-mperia S.s.c.    amp;   Feat. Dress Code       amp;      amp;    amp;  Dan Balan     Psy Gangnam Style -   2013 (   )     !!!     .   !     :) :)</a><a href="http://mp3clan.de/dl.php?type=get&amp;s=a8fab32e40bc84f58489050f7bd407d1&amp;tid=85980829_173368010&amp;name=Psy_-_Gangnam_Style_(russian_Version)_(zaycev.net)"><span class="fa fa-download"></span>Psy - Gangnam Style (russian Version) (zaycev.net)</a><a href="http://mp3clan.de/dl.php?type=get&amp;s=a8fab32e40bc84f58489050f7bd407d1&amp;tid=-25719102_180508401&amp;name=Borodastoffblog_-_:_Minecraft_Style_(a_Parody_Of_Psy's_Gangnam_Style)"><span class="fa fa-download"></span>Borodastoffblog - : Minecraft Style (a Parody Of Psy's Gangnam Style)</a><a href="http://mp3clan.de/dl.php?type=get&amp;s=a8fab32e40bc84f58489050f7bd407d1&amp;tid=-38793584_173005160&amp;name=Psy_Feat._Matt_Johnson_-_Heavy_Metal_Gangnam_Style"><span class="fa fa-download"></span>Psy Feat. Matt Johnson - Heavy Metal Gangnam Style</a><a href="http://mp3clan.de/dl.php?type=get&amp;s=a8fab32e40bc84f58489050f7bd407d1&amp;tid=-9693056_175958563&amp;name=_Energy_-_Psy_Vs._Rihanna_-_Where_Have_Gangnam_Style_Been_"><span class="fa fa-download"></span> Energy - Psy Vs. Rihanna - Where Have Gangnam Style Been </a><a href="http://mp3clan.de/dl.php?type=get&amp;s=a8fab32e40bc84f58489050f7bd407d1&amp;tid=3605665_163131126&amp;name=Cyril_The_Wolf_-_Gangnam_Style_(psy_Metal_Cover)"><span class="fa fa-download"></span>Cyril The Wolf - Gangnam Style (psy Metal Cover)</a><a href="http://mp3clan.de/dl.php?type=get&amp;s=a8fab32e40bc84f58489050f7bd407d1&amp;tid=441352_163251818&amp;name=Psy_-_Gangnam_Style_(crystal_Lake_Remix)"><span class="fa fa-download"></span>Psy - Gangnam Style (crystal Lake Remix)</a><a href="http://mp3clan.de/dl.php?type=get&amp;s=a8fab32e40bc84f58489050f7bd407d1&amp;tid=-27380885_167493015&amp;name=Firebeatz_amp;_Schella_Vs_Psy__-_Dear_Gangnam_(ken_Loi_Bootup_Style)_[dutch_House]_[2012]_[public27380885]"><span class="fa fa-download"></span>Firebeatz amp; Schella Vs Psy  - Dear Gangnam (ken Loi Bootup Style) [dutch House] [2012] [public27380885]</a><a href="http://mp3clan.de/dl.php?type=get&amp;s=a8fab32e40bc84f58489050f7bd407d1&amp;tid=14972788_194297506&amp;name=Psy_-_Gangnam_Style_(afrojack_Remix)"><span class="fa fa-download"></span>Psy - Gangnam Style (afrojack Remix)</a><a href="http://mp3clan.de/dl.php?type=get&amp;s=a8fab32e40bc84f58489050f7bd407d1&amp;tid=-47442238_200954492&amp;name=Rgled_-___________47_Bahh_Tee_Psy_Gangnam_Style_Nosa_Nosa__2009_2010_2011_2012_2013_Dubstep_Rap_Dub_Step_Dup_Step_____Electro_House_Complextro____Guf__-47__Bahh_Tee_"><span class="fa fa-download"></span>Rgled -           47 Bahh Tee Psy Gangnam Style Nosa Nosa  2009 2010 2011 2012 2013 Dubstep Rap Dub Step Dup Step     Electro House Complextro    Guf  -47  Bahh Tee </a><a href="http://mp3clan.de/dl.php?type=get&amp;s=a8fab32e40bc84f58489050f7bd407d1&amp;tid=109507850_171925524&amp;name=Psy__Oppa,_Gangnam_Style!_-__"><span class="fa fa-download"></span>Psy  Oppa, Gangnam Style! -  </a><a href="http://mp3clan.de/dl.php?type=get&amp;s=a8fab32e40bc84f58489050f7bd407d1&amp;tid=26456083_169050893&amp;name=Psy_Vs_Dj_Nejtrino_amp;_Dj_Stranger_-_Everybody_In_The_Gangnam_Style_(dj_Power_Mash_App)"><span class="fa fa-download"></span>Psy Vs Dj Nejtrino amp; Dj Stranger - Everybody In The Gangnam Style (dj Power Mash App)</a><a href="http://mp3clan.de/dl.php?type=get&amp;s=a8fab32e40bc84f58489050f7bd407d1&amp;tid=20733302_177593145&amp;name=Ivan_Dorn_Vs_Psy_-__Bigudi_Gangnam_Style_(dj_Longer_Mash_Up_Extented_Mix)"><span class="fa fa-download"></span>Ivan Dorn Vs Psy -  Bigudi Gangnam Style (dj Longer Mash Up Extented Mix)</a><a href="http://mp3clan.de/dl.php?type=get&amp;s=a8fab32e40bc84f58489050f7bd407d1&amp;tid=25730434_172422428&amp;name=David_Guetta__Psy_-_Love_Is_Gangnam_Style_(dj_Khatsukoff_Mush_Up_2012)"><span class="fa fa-download"></span>David Guetta  Psy - Love Is Gangnam Style (dj Khatsukoff Mush Up 2012)</a><a href="http://mp3clan.de/dl.php?type=get&amp;s=a8fab32e40bc84f58489050f7bd407d1&amp;tid=163614_168147024&amp;name=Buchatsky_amp;_Vasilkov_-_Jewish_Style_|_Official_Parody_To_Gangnam_Style_(psy)"><span class="fa fa-download"></span>Buchatsky amp; Vasilkov - Jewish Style | Official Parody To Gangnam Style (psy)</a><a href="http://mp3clan.de/dl.php?type=get&amp;s=a8fab32e40bc84f58489050f7bd407d1&amp;tid=-9693056_169895526&amp;name=_Energy_-_Psy_-_Gangnam_Style_(chris_Parker_Rmx)"><span class="fa fa-download"></span> Energy - Psy - Gangnam Style (chris Parker Rmx)</a><a href="http://mp3clan.de/dl.php?type=get&amp;s=a8fab32e40bc84f58489050f7bd407d1&amp;tid=451674_189633865&amp;name=Jayesslee_-_Gangnam_Style_-_Psy_(cover)"><span class="fa fa-download"></span>Jayesslee - Gangnam Style - Psy (cover)</a><a href="http://mp3clan.de/dl.php?type=get&amp;s=a8fab32e40bc84f58489050f7bd407d1&amp;tid=180553748_171956099&amp;name=Psy_-_Gangnam_Style_(dj_Grushevski__Misha_Zam_Bootleg_Radio_Edit)"><span class="fa fa-download"></span>Psy - Gangnam Style (dj Grushevski  Misha Zam Bootleg Radio Edit)</a><a href="http://mp3clan.de/dl.php?type=get&amp;s=a8fab32e40bc84f58489050f7bd407d1&amp;tid=8415704_170540948&amp;name=Dj_Antonio_Vs_Psy_-_Gangnam_Fire_Style_(extended_Mix)_Kharkov_Night"><span class="fa fa-download"></span>Dj Antonio Vs Psy - Gangnam Fire Style (extended Mix) Kharkov Night</a><a href="http://mp3clan.de/dl.php?type=get&amp;s=a8fab32e40bc84f58489050f7bd407d1&amp;tid=7354544_219818938&amp;name=__-_Psy_Gangnam_Style_Cover"><span class="fa fa-download"></span>  - Psy Gangnam Style Cover</a><a href="http://mp3clan.de/dl.php?type=get&amp;s=a8fab32e40bc84f58489050f7bd407d1&amp;tid=-45553868_178554133&amp;name=Psy_-_Oppa,gangnam_Style!(_)_!!!" style="background-color: rgb(196, 29, 29);"><span class="fa fa-download"></span>Psy - Oppa,gangnam Style!( ) !!!</a><a href="http://mp3clan.de/dl.php?type=get&amp;s=a8fab32e40bc84f58489050f7bd407d1&amp;tid=-23138673_167857203&amp;name=Caladrius_-_Caladrius_Style_(psy_-_Gangnam_Style_Cover)_(post-hardcore.ru)"><span class="fa fa-download"></span>Caladrius - Caladrius Style (psy - Gangnam Style Cover) (post-hardcore.ru)</a><a href="http://mp3clan.de/dl.php?type=get&amp;s=a8fab32e40bc84f58489050f7bd407d1&amp;tid=-24601277_193729593&amp;name=Psy_-_Gangnam_Style_(diplo_Remix)_(feat._Tyga_amp;_2_Chainz)"><span class="fa fa-download"></span>Psy - Gangnam Style (diplo Remix) (feat. Tyga amp; 2 Chainz)</a><a href="http://mp3clan.de/dl.php?type=get&amp;s=a8fab32e40bc84f58489050f7bd407d1&amp;tid=13298266_175835019&amp;name=K.rozhkov_-_Gangnam_Style(feat._Insane_Corpse)(psy_Cover)"><span class="fa fa-download"></span>K.rozhkov - Gangnam Style(feat. Insane Corpse)(psy Cover)</a><a href="http://mp3clan.de/dl.php?type=get&amp;s=a8fab32e40bc84f58489050f7bd407d1&amp;tid=3056294_169889849&amp;name=Psy_-_Gangnam_Style_(heretics_Darkness_Edit)"><span class="fa fa-download"></span>Psy - Gangnam Style (heretics Darkness Edit)</a><a href="http://mp3clan.de/dl.php?type=get&amp;s=a8fab32e40bc84f58489050f7bd407d1&amp;tid=14972788_165806960&amp;name=Psy_-_Gangnam_Style_(noc.v_Remix)"><span class="fa fa-download"></span>Psy - Gangnam Style (noc.v Remix)</a><a href="http://mp3clan.de/dl.php?type=get&amp;s=a8fab32e40bc84f58489050f7bd407d1&amp;tid=-32661799_172338535&amp;name=Psy_-_Gangnam_Style_(destan_Lee_Remix)"><span class="fa fa-download"></span>Psy - Gangnam Style (destan Lee Remix)</a><a href="http://mp3clan.de/dl.php?type=get&amp;s=a8fab32e40bc84f58489050f7bd407d1&amp;tid=-9693056_177625693&amp;name=Black2white_Vs._Psy_-_Gangnam_Style"><span class="fa fa-download"></span>Black2white Vs. Psy - Gangnam Style</a><a href="http://mp3clan.de/dl.php?type=get&amp;s=a8fab32e40bc84f58489050f7bd407d1&amp;tid=10279503_169676126&amp;name=Psy_-_Gangnam_Style_(ximio_Remix)"><span class="fa fa-download"></span>Psy - Gangnam Style (ximio Remix)</a></div>
+		</div>
+		<!-- auto download <iframe src="link"></iframe> -->
+	</section>
+</body>
+</html>
