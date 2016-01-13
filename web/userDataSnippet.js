@@ -1,7 +1,7 @@
 
 	function login(callback) {
 		var CLIENT_ID = 'd1609587125f4906b06197604a5c83e5';
-		var REDIRECT_URI = 'http://localhost/spotifyLogin.html';
+		var REDIRECT_URI = 'http://aeyos.herokuapp.com/spotifyLogin.html';
 		function getLoginURL(scopes) {
 			return 'https://accounts.spotify.com/authorize?client_id=' + CLIENT_ID +
 			  '&redirect_uri=' + encodeURIComponent(REDIRECT_URI) +
